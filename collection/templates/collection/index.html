@@ -1,0 +1,216 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %} Collections {% endblock %}
+
+{% block content %}
+
+<!-- Search Section -->
+<div class="relative min-h-screen flex flex-col items-center justify-center bg-white overflow-hidden">
+
+  <!-- Floating Images -->
+  <div id="floating-left" class="absolute left-0 inset-y-0 flex flex-col justify-center gap-6 px-6">
+    <img src="{% static 'assets/images/hero-left.png' %}" class="w-36 object-cover transition duration-500" />
+  </div>
+
+  <div id="floating-right" class="absolute right-0 inset-y-0 flex flex-col justify-center gap-6 px-6">
+    <img src="{% static 'assets/images/hero-right.png' %}" class="w-36 object-cover transition duration-500" />
+  </div>
+
+  <!-- Center Content -->
+  <div id="search-container" class="z-10 text-center max-w-lg transition-all duration-500 ease-in-out">
+    <h1 class="text-3xl md:text-4xl font-bold text-gray-900">Search</h1>
+    <p class="text-gray-500 mt-2">Search high-resolution images from Unsplash</p>
+
+    <form id="search-form" class="mt-6 flex items-center justify-center">
+      <div class="relative w-full max-w-md">
+        <input 
+          id="search-input"
+          type="text" 
+          name="q" 
+          placeholder="Enter your keywords..." 
+          class="w-full px-5 py-3 pr-12 rounded-xl border border-gray-300 shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button type="submit" 
+          class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600">
+          🔍
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+<!-- Gallery Section -->
+<div id="gallery-container" class="relative">
+  <!-- Spinner (hidden by default) -->
+  <div id="loading-spinner" class="absolute inset-0 flex items-center justify-center bg-white bg-opacity-70 hidden">
+    <div class="w-12 h-12 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+  </div>
+
+  <!-- Gallery Images -->
+<div id="gallery" class="columns-2 sm:columns-3 md:columns-4 gap-4 px-4 sm:px-6 lg:px-8 mt-10">
+  {% for img in images %}
+   <div class="mb-4 break-inside-avoid">
+    <div class="relative group rounded-lg shadow-md overflow-hidden">
+      <a href="{% url 'collection_detail' %}?image_id={{ img.id }}" class="block">
+        <img src="{{ img.urls.small }}" alt="{{ img.alt_description }}" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-105" />
+      </a>
+      <!-- Overlay (not inside <a>) -->
+      <div class="absolute inset-0 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition duration-300 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none">
+        <!-- Top Right Buttons -->
+        <div class="flex justify-end p-2 space-x-2">
+          <button class="bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-md transition pointer-events-auto" title="Like">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+          </button>
+            {% if request.user.is_authenticated %}
+              <form class="add-to-collection-form pointer-events-auto" data-image-id="{{ img.id }}">
+                {% csrf_token %}
+                <button type="submit"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition pointer-events-auto">
+                  + Collection
+                </button>
+              </form>
+            {% else %}
+              <a href="#" onclick="unauthAlert(event)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition">+ Collection</a>
+            {% endif %}
+        </div>
+        <!-- Bottom Left Download Button -->
+        <div class="flex justify-start p-2">
+            {% if request.user.is_authenticated %}
+              <a href="{{ img.links.download }}" target="_blank" download class="px-3 py-1 bg-white text-black text-xs font-medium rounded-md hover:bg-gray-200 transition shadow-md pointer-events-auto">Download</a>
+            {% else %}
+              <a href="#" onclick="unauthAlert(event)" class="px-3 py-1 bg-white text-black text-xs font-medium rounded-md hover:bg-gray-200 transition shadow-md pointer-events-auto">Download</a>
+            {% endif %}
+        </div>
+      </div>
+    </div>
+    </div>
+  {% endfor %}
+</div>
+</div>
+
+<script>
+  const searchForm = document.getElementById("search-form");
+  const searchInput = document.getElementById("search-input");
+  const searchContainer = document.getElementById("search-container");
+  const floatingLeft = document.getElementById("floating-left");
+  const floatingRight = document.getElementById("floating-right");
+  const gallery = document.getElementById("gallery");
+
+  // When input is focused → animate search box up + hide side images
+  searchInput.addEventListener("focus", () => {
+    searchContainer.classList.add("translate-y-[-50px]"); 
+    floatingLeft.classList.add("opacity-0");
+    floatingRight.classList.add("opacity-0");
+  });
+
+  // When input loses focus (optional, remove if you don’t want reset)
+  searchInput.addEventListener("blur", () => {
+    if (!searchInput.value.trim()) {
+      searchContainer.classList.remove("translate-y-[-50px]");
+      floatingLeft.classList.remove("opacity-0");
+      floatingRight.classList.remove("opacity-0");
+    }
+  });
+
+  // Submit form → fetch Unsplash images
+  searchForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const query = searchInput.value.trim();
+    if (!query) return;
+
+    // Fade out gallery
+    gallery.classList.add("opacity-0");
+
+    // Call Unsplash API
+    const response = await fetch(`https://api.unsplash.com/search/photos?query=${query}&client_id=FEN7muUAoBMnLCKKJUDeWOItY2G9jg-45WY_P2u16J8`);
+    const data = await response.json();
+
+    // Replace gallery content
+  gallery.innerHTML = data.results.map(img => `
+    <div class="mb-4 break-inside-avoid">
+    <div class="relative group rounded-lg shadow-md overflow-hidden">
+      <a href="/collection_detail?image_id=${img.id}" class="block">
+      <img src="${img.urls.small}" alt="${img.alt_description}" class="w-full rounded-lg transition-transform duration-300 group-hover:scale-105" />
+      </a>
+      <!-- Overlay (not inside <a>) -->
+      <div class="absolute inset-0 flex flex-col justify-between opacity-0 group-hover:opacity-100 transition duration-300 bg-gradient-to-t from-black/60 via-black/10 to-transparent pointer-events-none">
+      <!-- Top Right Buttons -->
+      <div class="flex justify-end p-2 space-x-2">
+        <button class="bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-md transition pointer-events-auto" title="Like">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
+        </button>
+       <form class="add-to-collection-form pointer-events-auto" data-image-id="{{ img.id }}">
+          {% csrf_token %}
+          <button type="submit"
+              class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition pointer-events-auto">
+            + Collection
+          </button>
+        </form>
+      </div>
+      <!-- Bottom Left Download Button -->
+      <div class="flex justify-start p-2">
+        <a href="${img.links.download}" target="_blank" class="px-3 py-1 bg-white text-black text-xs font-medium rounded-md hover:bg-gray-200 transition shadow-md pointer-events-auto">Download</a>
+      </div>
+      </div>
+    </div>
+    </div>
+  `).join("");
+  // Fade back in
+  setTimeout(() => {
+    gallery.classList.remove("opacity-0");
+  }, 200);
+  });
+function unauthAlert(e) {
+  e.preventDefault();
+  Swal.fire({
+    icon: 'info',
+    title: 'Login Required',
+    text: 'Please login to use this feature.',
+    confirmButtonText: 'Go to Login',
+    allowOutsideClick: false
+  }).then(() => {
+    window.location.href = "{% url 'login' %}";
+  });
+}
+</script>
+
+
+<script>
+document.querySelectorAll('.add-to-collection-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const imageId = form.getAttribute('data-image-id');
+        const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+        fetch("{% url 'add_to_collection' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": csrfToken
+            },
+            body: `image_id=${imageId}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Added!',
+                    text: 'Image added to your collection.',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: data.message || 'Something went wrong.',
+                });
+            }
+        });
+    });
+});
+</script>
+
+{% endblock %}

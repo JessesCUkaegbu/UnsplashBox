@@ -1,0 +1,120 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Collections{% endblock %}
+
+{% block content %}
+
+
+<div class="min-h-screen bg-[#dbe3ec] flex flex-col items-center py-8">
+	<div class="w-full max-w-6xl mx-auto">
+		<!-- Header -->
+		<div class="text-center mb-8">
+			<h1 class="text-5xl font-bold bg-gradient-to-r from-[#e7bfa7] via-[#b47ab3] to-[#7a9ab3] bg-clip-text text-transparent mb-4">Collections</h1>
+			<p class="text-lg text-gray-600">Explore the world through collections of beautiful photos free to use under the <a href="#" class="underline text-gray-800 font-medium">Jess Unsplash Collection</a>.</p>
+		</div>
+		<!-- Collections Grid -->
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-10">
+			<!-- Collection Card Example -->
+			{% for collection in collections %}
+				<div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+					<div class="grid grid-cols-2 gap-2 mb-4 w-full">
+						{% for image in collection.images.all %}
+						<div class="relative group">
+							<img src="{{ image.url }}" class="rounded-lg object-cover h-32 w-full" />
+							<!-- Delete Button Overlay -->
+							<form class="delete-image-form absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-300" data-image-id="{{ image.id }}" data-collection-id="{{ collection.id }}" style="pointer-events:auto;">
+								{% csrf_token %}
+								<button type="submit" class="bg-red-600 text-white rounded-full p-2 shadow-md hover:bg-red-700 transition flex items-center" title="Delete Image">
+									<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+								</button>
+							</form>
+						</div>
+						{% endfor %}
+					</div>
+					<div class="w-full">
+						<div class="font-semibold text-lg text-gray-800">{{ collection.name }}</div>
+						<div class="text-sm text-gray-400">{{ collection.images.count }} photos</div>
+					</div>
+				</div>
+			{% endfor %}
+			<!-- <div class="bg-white rounded-xl shadow-lg p-6 flex flex-col items-center">
+				<div class="grid grid-cols-2 gap-2 mb-4 w-full">
+					{% for image in collection.images.all %}
+                    <img src="{{ image.url }}" class="rounded-lg object-cover h-32 w-full" />
+                    {% endfor %}
+				</div>
+				<div class="w-full">
+					<div class="font-semibold text-lg text-gray-800">{{ collection.name }}</div>
+					<div class="text-sm text-gray-400">{{ collection.images.count }} photos</div>
+				</div>
+			</div> -->
+			<!-- Add New Collection Card -->
+			<div class="bg-gray-100 rounded-xl flex flex-col items-center justify-center p-6 h-full min-h-[220px] cursor-pointer hover:bg-gray-200 transition">
+				<div class="flex flex-col items-center">
+					<span class="text-4xl text-gray-400 mb-2">+</span>
+					<span class="text-lg text-gray-500 font-medium">Add new collection</span>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+document.querySelectorAll('.delete-image-form').forEach(form => {
+	form.addEventListener('submit', function(e) {
+		e.preventDefault();
+		const imageId = form.getAttribute('data-image-id');
+		const collectionId = form.getAttribute('data-collection-id');
+		const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+		fetch('/delete_image_from_collection/', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/x-www-form-urlencoded',
+				'X-CSRFToken': csrfToken
+			},
+			body: `image_id=${imageId}&collection_id=${collectionId}`
+		})
+		.then(response => response.json())
+		.then(data => {
+			if (data.success) {
+				Swal.fire({
+					icon: 'success',
+					title: 'Deleted!',
+					text: 'Image removed from your collection.',
+					timer: 2000,
+					showConfirmButton: false
+				});
+				// Remove image from DOM
+				form.parentElement.remove();
+			} else {
+				Swal.fire({
+					icon: 'error',
+					title: 'Oops!',
+					text: data.message || 'Something went wrong.',
+				});
+			}
+		});
+	});
+});
+</script>
+
+
+{% if messages %}
+  <div class="mb-4 space-y-2">
+    {% for message in messages %}
+      <div 
+        class="px-4 py-2 rounded-lg 
+               {% if message.tags == 'success' %} bg-green-100 text-green-700 
+               {% elif message.tags == 'error' %} bg-red-100 text-red-700 
+               {% elif message.tags == 'info' %} bg-blue-100 text-blue-700 
+               {% else %} bg-gray-100 text-gray-700 {% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+
+{% endblock %}

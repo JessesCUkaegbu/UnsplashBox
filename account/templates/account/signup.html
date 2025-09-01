@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-50">
+    <div class="bg-white rounded-xl shadow-lg flex w-full max-w-3xl overflow-hidden">
+        <!-- Left Image -->
+        <div class="hidden md:block md:w-1/2 bg-gray-100 flex items-center justify-center">
+            <img src="https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=600&q=80" alt="Sign Up Visual" class="object-cover h-full w-full" />
+        </div>
+        <!-- Right Sign Up Form -->
+        <div class="w-full md:w-1/2 p-8 flex flex-col justify-center">
+            <div class="mb-6 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Account</h2>
+                <p class="text-gray-500">Sign up for your UnsplashBox account</p>
+            </div>
+            <form method="post" class="space-y-5">
+                {% csrf_token %}
+                <div>
+                    <label for="username" class="block text-gray-700 font-medium mb-1">Username</label>
+                    <input type="text" name="username" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="email" class="block text-gray-700 font-medium mb-1">Email</label>
+                    <input type="email" name="email" id="email" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="password1" class="block text-gray-700 font-medium mb-1">Password</label>
+                    <input type="password" name="password1" id="password1" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                <div>
+                    <label for="password2" class="block text-gray-700 font-medium mb-1">Confirm Password</label>
+                    <input type="password" name="password2" id="password2" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                </div>
+                {% if error %}
+                <div class="text-red-500 text-sm">{{ error }}</div>
+                {% endif %}
+                <button type="submit" class="w-full py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition">Sign Up</button>
+            </form>
+            <div class="mt-6 text-center text-gray-500">
+                Already have an account? <a href="{% url 'login' %}" class="text-blue-600 hover:underline">Login</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+{% endblock %}

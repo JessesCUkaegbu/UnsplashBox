@@ -1,0 +1,108 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}Collection Detail{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-[#F7FCF6] flex flex-col items-center py-8">
+	<div class="w-full max-w-5xl bg-white rounded-xl shadow-lg flex flex-col md:flex-row p-8">
+		<!-- Main Image and Details -->
+		<div class="flex-1 flex flex-col items-center justify-center">
+			{% if image %}
+				<img src="{{ image.urls.regular }}" alt="{{ image.alt_description }}" class="rounded-lg object-cover w-full max-w-md h-[500px] mb-6" />
+				<div class="w-full max-w-md bg-gray-50 rounded-lg p-4 mb-4">
+					<div class="text-lg font-semibold text-gray-800 mb-2">{{ image.description|default:image.alt_description }}</div>
+					<div class="text-sm text-gray-500 mb-1">By <a href="{{ image.user.links.html }}" target="_blank" class="text-blue-500 hover:underline">{{ image.user.name }}</a></div>
+					<div class="text-xs text-gray-400 mb-1">Published on {{ image.created_at|date:"F d, Y" }}</div>
+					<div class="text-xs text-gray-400">Unsplash ID: {{ image.id }}</div>
+					<div class="mt-2">
+						<a href="{{ image.links.html }}" target="_blank" class="text-blue-500 hover:underline text-xs">View on Unsplash</a>
+					</div>
+				</div>
+			{% else %}
+				<div class="text-center text-gray-400">No image selected.</div>
+			{% endif %}
+		</div>
+		<!-- Sidebar -->
+		<div class="md:w-1/3 w-full md:pl-12 mt-8 md:mt-0 flex flex-col">
+			<!-- User Info -->
+			{% if image %}
+			<div class="flex items-center space-x-3 mb-2">
+				<img src="{{ image.user.profile_image.medium }}" alt="User Avatar" class="w-10 h-10 rounded-full border" />
+				<div>
+					<div class="font-semibold text-gray-700">{{ image.user.name }}</div>
+					<div class="text-xs text-gray-400">@{{ image.user.username }}</div>
+				</div>
+			</div>
+			{% endif %}
+			<!-- Buttons -->
+			<div class="flex space-x-3 mb-6">
+				{% if image %}
+				<form class="add-to-collection-detail-form" data-image-id="{{ image.id }}">
+					{% csrf_token %}
+					<button type="submit"
+						class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition">
+						+ Collection
+					</button>
+				</form>
+				<a href="{{ image.links.download }}" target="_blank" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center">
+					<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5 5m0 0l5-5m-5 5V4" /></svg>Download
+				</a>
+				{% endif %}
+			</div>
+
+			<script>
+			document.querySelectorAll('.add-to-collection-detail-form').forEach(form => {
+				form.addEventListener('submit', function(e) {
+					e.preventDefault();
+					const imageId = form.getAttribute('data-image-id');
+					const csrfToken = form.querySelector('[name=csrfmiddlewaretoken]').value;
+
+					fetch("{% url 'add_to_collection' %}", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/x-www-form-urlencoded",
+							"X-CSRFToken": csrfToken
+						},
+						body: `image_id=${imageId}`
+					})
+					.then(response => response.json())
+					.then(data => {
+						if (data.success) {
+							Swal.fire({
+								icon: 'success',
+								title: 'Added!',
+								text: 'Image added to your collection.',
+								timer: 2000,
+								showConfirmButton: false
+							});
+						} else {
+							Swal.fire({
+								icon: 'error',
+								title: 'Oops!',
+								text: data.message || 'Something went wrong.',
+							});
+						}
+					});
+				});
+			});
+			</script>
+			<!-- Collections List (placeholder, you can update as needed) -->
+			<div>
+				<div class="font-semibold text-lg mb-3">Collections</div>
+				<div class="space-y-2">
+					<!-- Example collection item, replace with your actual collections -->
+					<div class="flex items-center bg-gray-100 rounded-lg p-2 hover:bg-gray-200 transition group">
+						<img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=facearea&w=48&h=48" alt="" class="w-12 h-12 rounded-lg object-cover mr-3" />
+						<div class="flex-1">
+							<div class="font-medium text-gray-700">Sample Collection</div>
+							<div class="text-xs text-gray-400">12 photos</div>
+						</div>
+						<button class="ml-2 text-gray-500 hover:text-red-500 px-3 py-1 rounded transition">&minus; Remove</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

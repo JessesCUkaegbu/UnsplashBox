@@ -1,0 +1,85 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Home</title>
+</head>
+<body>
+
+     {% if request.user.is_authenticated %}
+      <header class="bg-gray-50 sticky top-0 z-50" style="box-shadow: 0 1px 2px rgba(0,0,0,0.25);">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+
+          <!-- Brand -->
+          <div class="flex-shrink-0">
+            <a href="/" class="text-xl font-bold text-gray-900"><img src="{% static 'assets/images/Logo.svg' %}" alt="UnsplashBox Logo" class="h-8 w-100"></a>
+          </div>
+
+          <!-- Nav links -->
+          <ul class="flex space-x-6">
+            <li>
+              <a
+                href="/"
+                class="{% if request.path == '/' %}text-gray-900 font-semibold border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
+              >
+                Home
+              </a>
+            </li>
+            <li>
+              <a
+                href="{% url 'collection_list' %}"
+                class="{% if '/collections' in request.path %}text-gray-900 font-semibold border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
+              >
+                Collections
+              </a>
+            </li>
+            <li>
+              <a
+                href="{% url 'logout' %}"
+                class="font-semi border-gray-900 text-gray-500 hover:text-gray-900 px-2 py-1"
+              >
+                Logout
+              </a>
+            </li>
+          </ul>
+
+        </nav>
+      </header>
+      {% endif %}
+
+    {% block content %}
+    
+    
+    {% endblock %}
+    
+
+    {% if messages %}
+    {% for message in messages %}
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        Swal.fire({
+          icon: "{% if message.tags == 'success' %}success{% elif message.tags == 'error' %}error{% else %}info{% endif %}",
+          title: "{{ message|escapejs }}",
+          draggable: true,
+          showConfirmButton: false,
+          timer: 2000
+        });
+      });
+    </script>
+      {% endfor %}
+  {% endif %}
+</body>
+
+  <footer class="bg-gray-50 mt-10">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+      <p class="text-center text-gray-500 text-sm">
+        &copy; 2023 UnsplashBox. All rights reserved.
+      </p>
+    </div>
+  </footer>
+
+</html>
