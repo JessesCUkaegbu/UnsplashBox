@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-aqjpc_rh9hygi^i5(mg4ap1%ko_ojp1xoy4i49^=fr0b2^q(k+
 
 # SECURITY WARNING: don't run with debug turned on in production!
 
-DEBUG = os.getenv('DEBUG', 'False') == 'True'
+DEBUG = os.getenv('DEBUG', 'False') == 'False'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
@@ -140,3 +140,7 @@ MESSAGE_TAGS = {
     messages.ERROR: "text-red-600",
     messages.SUCCESS: "text-green-600",
 }
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://web-production-6dea.up.railway.app",
+]
