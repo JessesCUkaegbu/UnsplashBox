@@ -117,7 +117,7 @@
   searchForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const query = searchInput.value.trim();
+    const query = searchInput.value.trim() + " Africa";
     if (!query) return;
 
     // Fade out gallery
@@ -128,7 +128,7 @@
     const data = await response.json();
 
     // Replace gallery content
-  gallery.innerHTML = data.results.map(img => `
+    gallery.innerHTML = data.results.map(img => `
     <div class="mb-4 break-inside-avoid">
     <div class="relative group rounded-lg shadow-md overflow-hidden">
       <a href="/collection_detail?image_id=${img.id}" class="block">
@@ -141,13 +141,7 @@
         <button class="bg-white/80 hover:bg-white text-gray-800 rounded-full p-2 shadow-md transition pointer-events-auto" title="Like">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" /></svg>
         </button>
-       <form class="add-to-collection-form pointer-events-auto" data-image-id="{{ img.id }}">
-          {% csrf_token %}
-          <button type="submit"
-              class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition pointer-events-auto">
-            + Collection
-          </button>
-        </form>
+        <a href="#" onclick="unauthAlert(event)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-2 py-1 text-sm rounded-lg flex items-center transition">+ Collection</a>
       </div>
       <!-- Bottom Left Download Button -->
       <div class="flex justify-start p-2">
@@ -168,10 +162,15 @@ function unauthAlert(e) {
     icon: 'info',
     title: 'Login Required',
     text: 'Please login to use this feature.',
+    showCancelButton: true,
     confirmButtonText: 'Go to Login',
-    allowOutsideClick: false
-  }).then(() => {
-    window.location.href = "{% url 'login' %}";
+    cancelButtonText: 'Skip',
+    allowOutsideClick: true
+  }).then((result) => {
+    if (result.isConfirmed) {
+      window.location.href = "{% url 'login' %}";
+    }
+    // If skipped, do nothing
   });
 }
 </script>
