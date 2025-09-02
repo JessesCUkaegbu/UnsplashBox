@@ -9,12 +9,13 @@
 <div class="relative min-h-screen flex flex-col items-center justify-center bg-white overflow-hidden">
 
   <!-- Floating Images -->
-  <div id="floating-left" class="absolute left-0 inset-y-0 flex flex-col justify-center gap-6 px-6">
-    <img src="{% static 'assets/images/hero-left.png' %}" class="w-36 object-cover transition duration-500" />
+
+  <div id="floating-left" class="absolute left-0 inset-y-0 hidden sm:flex flex-col justify-center gap-6 px-6">
+    <img src="{% static 'assets/images/hero-left.png' %}" class="w-28 object-cover transition duration-500" />
   </div>
 
-  <div id="floating-right" class="absolute right-0 inset-y-0 flex flex-col justify-center gap-6 px-6">
-    <img src="{% static 'assets/images/hero-right.png' %}" class="w-36 object-cover transition duration-500" />
+  <div id="floating-right" class="absolute right-0 inset-y-0 hidden sm:flex flex-col justify-center gap-6 px-6">
+    <img src="{% static 'assets/images/hero-right.png' %}" class="w-28 object-cover transition duration-500" />
   </div>
 
   <!-- Center Content -->
@@ -65,12 +66,12 @@
               <form class="add-to-collection-form pointer-events-auto" data-image-id="{{ img.id }}">
                 {% csrf_token %}
                 <button type="submit"
-                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition pointer-events-auto">
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-2 py-1 text-sm rounded-lg flex items-center transition pointer-events-auto">
                   + Collection
                 </button>
               </form>
             {% else %}
-              <a href="#" onclick="unauthAlert(event)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-4 py-2 rounded-lg flex items-center transition">+ Collection</a>
+              <a href="#" onclick="unauthAlert(event)" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-medium px-2 py-1 text-sm rounded-lg flex items-center transition">+ Collection</a>
             {% endif %}
         </div>
         <!-- Bottom Left Download Button -->
