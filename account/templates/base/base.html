@@ -12,19 +12,25 @@
 
      {% if request.user.is_authenticated %}
       <header class="bg-gray-50 sticky top-0 z-50" style="box-shadow: 0 1px 2px rgba(0,0,0,0.25);">
-        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between h-auto md:h-16">
 
-          <!-- Brand -->
-          <div class="flex-shrink-0">
-            <a href="/" class="text-xl font-bold text-gray-900"><img src="{% static 'assets/images/Logo.svg' %}" alt="UnsplashBox Logo" class="h-8 w-100"></a>
+          <!-- Brand and Mobile Menu Button -->
+          <div class="flex-shrink-0 mb-4 md:mb-0 w-full flex items-center justify-between">
+            <a href="/" class="text-xl font-bold text-gray-900 flex items-center"><img src="{% static 'assets/images/Logo.svg' %}" alt="UnsplashBox Logo" class="h-8 w-100 mr-2"></a>
+            <!-- Hamburger Button -->
+            <button id="mobile-menu-btn" class="md:hidden text-gray-700 focus:outline-none" aria-label="Toggle navigation">
+              <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
           </div>
 
           <!-- Nav links -->
-          <ul class="flex space-x-6">
+          <ul id="main-nav" class="flex flex-col md:flex-row w-full md:w-auto space-y-2 md:space-y-0 md:space-x-6 md:flex">
             <li>
               <a
                 href="/"
-                class="{% if request.path == '/' %}text-gray-900 font-semibold border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
+                class="{% if request.path == '/' %}text-gray-900 font-semibold border-l-4 md:border-l-0 md:border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
               >
                 Home
               </a>
@@ -32,7 +38,7 @@
             <li>
               <a
                 href="{% url 'collection_list' %}"
-                class="{% if '/collections' in request.path %}text-gray-900 font-semibold border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
+                class="{% if '/collections' in request.path %}text-gray-900 font-semibold border-l-4 md:border-l-0 md:border-b-2 border-gray-900{% else %}text-gray-500 hover:text-gray-900{% endif %} px-2 py-1"
               >
                 Collections
               </a>
@@ -49,6 +55,35 @@
 
         </nav>
       </header>
+      <script>
+        // Mobile menu toggle
+        document.addEventListener('DOMContentLoaded', function() {
+          const menuBtn = document.getElementById('mobile-menu-btn');
+          const mainNav = document.getElementById('main-nav');
+          if (menuBtn && mainNav) {
+            // Hide nav by default on mobile
+            if (window.innerWidth < 768) {
+              mainNav.style.display = 'none';
+            }
+            menuBtn.addEventListener('click', function() {
+              if (mainNav.style.display === 'none') {
+                mainNav.style.display = 'flex';
+                mainNav.style.flexDirection = 'column';
+              } else {
+                mainNav.style.display = 'none';
+              }
+            });
+            window.addEventListener('resize', function() {
+              if (window.innerWidth >= 768) {
+                mainNav.style.display = 'flex';
+                mainNav.style.flexDirection = 'row';
+              } else {
+                mainNav.style.display = 'none';
+              }
+            });
+          }
+        });
+      </script>
       {% endif %}
 
     {% block content %}
