@@ -80,9 +80,21 @@ WSGI_APPLICATION = 'unsplashbox.wsgi.application'
 
 
 # Use PostgreSQL on Railway if DATABASE_URL is set
+
+# Add at the top if not present
+import os
 import dj_database_url
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Get DATABASE_URL from environment or fallback to SQLite
+DATABASE_URL = os.getenv('DATABASE_URL', f'sqlite:///{BASE_DIR}/db.sqlite3')
+
 DATABASES = {
-    'default': dj_database_url.config(default=f'sqlite:///{BASE_DIR}/db.sqlite3')
+    'default': dj_database_url.config(default=DATABASE_URL)
 }
 
 
