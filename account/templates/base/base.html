@@ -33,8 +33,14 @@
 
   <!-- Top Navbar -->
   <header class="fixed top-0 left-16 right-0 h-16 bg-white border-b flex items-center px-6 z-30">
+    <!-- Mobile menu button -->
+    <button id="mobile-nav-toggle" class="md:hidden mr-4 text-gray-700 focus:outline-none" aria-label="Toggle navigation">
+      <svg class="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
     <!-- Search Bar -->
-    <form class="flex-1 flex items-center max-w-xl mx-auto">
+    <form class="flex-1 flex items-center max-w-xl mx-auto order-2 md:order-none w-full md:w-auto">
       <div class="relative w-full">
         <input
           id="navbar-search-input"
@@ -48,7 +54,7 @@
       </div>
     </form>
     <!-- Right Buttons -->
-    <div class="flex items-center space-x-4 ml-6">
+    <div id="navbar-links" class="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-4 ml-0 md:ml-6 absolute md:static top-16 left-0 right-0 bg-white md:bg-transparent border-b md:border-0 shadow md:shadow-none z-40 md:z-0 hidden md:flex">
       <a href="#" class="text-gray-700 font-medium hover:underline">Get Unsplash+</a>
       <a href="#" class="bg-gray-100 px-4 py-2 rounded border text-gray-700 font-medium hover:bg-gray-200">Submit an image</a>
        <a
@@ -58,10 +64,33 @@
           Collections
         </a>
       <!-- User Icon or Avatar -->
-      <a href="#" class="ml-2">
+      <a href="#" class="ml-0 md:ml-2">
         <svg class="h-8 w-8 text-gray-400" fill="none" stroke="currentColor" ...> <!-- User Icon SVG --></svg>
       </a>
     </div>
+    <script>
+      // Responsive navbar toggle
+      document.addEventListener('DOMContentLoaded', function() {
+        const navToggle = document.getElementById('mobile-nav-toggle');
+        const navLinks = document.getElementById('navbar-links');
+        if (navToggle && navLinks) {
+          navToggle.addEventListener('click', function() {
+            navLinks.classList.toggle('hidden');
+          });
+          // Hide links by default on mobile
+          if (window.innerWidth < 768) {
+            navLinks.classList.add('hidden');
+          }
+          window.addEventListener('resize', function() {
+            if (window.innerWidth >= 768) {
+              navLinks.classList.remove('hidden');
+            } else {
+              navLinks.classList.add('hidden');
+            }
+          });
+        }
+      });
+    </script>
   </header>
 
     <!-- Main Content Wrapper (add margin to avoid overlap) -->
